@@ -190,7 +190,7 @@
     <h1 id="loveTitle">LOVE YOU</h1>
 
     <p class="subtitle">
-      في حكاية محدش يعرف سرها غيرك يا ندي ♥
+      بحبك حب مالوش تفسير ولا اي نهايه ❣️❣️
     </p>
 
     <div class="heart-wrap">
@@ -255,12 +255,12 @@
         inputmode="numeric"
         autocomplete="off"
         placeholder="اكتبي السر هنا ♥"
-        aria-label="كلمة السر"
+        aria-label="Password"
       >
     </div>
 
     <button class="unlock" id="unlockButton">
-      افتحي حكايتنا ♥
+      افتحي الهديه ♥
     </button>
 
     <p id="message" role="status"></p>
@@ -333,7 +333,7 @@
         button.textContent = "♥ بحبك يا ندي ♥";
         button.disabled = true;
 
-        // هنضيف انتقال الانفجار والواجهة الثانية في الخطوة القادمة.
+       startExplosion();
       } else {
         message.textContent = "مش ده السر يا ندي.. جربي تاني ♥";
         passwordInput.value = "";
@@ -346,6 +346,166 @@
     passwordInput.addEventListener("keydown", function(event) {
       if (event.key === "Enter") unlock();
     });
+    function startExplosion() {
+      const screen = document.querySelector(".screen");
+
+      screen.innerHTML = `
+        <div id="cinema" style="
+          position:fixed;inset:0;background:#030000;
+          display:flex;align-items:center;justify-content:center;
+          flex-direction:column;z-index:10;overflow:hidden;
+          font-family:Arial,sans-serif;">
+          <canvas id="cinemaCanvas" style="
+            position:absolute;inset:0;width:100%;height:100%;">
+          </canvas>
+          <div id="countdown" style="
+            position:relative;color:#ff1738;font-size:100px;
+            font-weight:900;text-shadow:0 0 30px red;">
+            3
+          </div>
+          <div id="loveWords" style="
+            position:relative;color:#ff2948;font-size:clamp(30px,8vw,65px);
+            font-weight:900;text-align:center;direction:ltr;
+            text-shadow:0 0 25px red;">
+          </div>
+        </div>`;
+
+      const canvas = document.getElementById("cinemaCanvas");
+      const ctx = canvas.getContext("2d");
+      const countdown = document.getElementById("countdown");
+      const words = document.getElementById("loveWords");
+
+      let w, h, particles = [];
+
+      function resize() {
+        w = canvas.width = innerWidth;
+        h = canvas.height = innerHeight;
+      }
+      resize();
+      window.addEventListener("resize", resize);
+
+      function burst() {
+        for (let i = 0; i < 240; i++) {
+          const angle = Math.random() * Math.PI * 2;
+          const speed = 2 + Math.random() * 13;
+          particles.push({
+            x: w / 2, y: h / 2,
+            vx: Math.cos(angle) * speed,
+            vy: Math.sin(angle) * speed,
+            life: 1,
+            size: 1 + Math.random() * 4
+          });
+        }
+      }
+
+      function animate() {
+        ctx.fillStyle = "rgba(3,0,0,.20)";
+        ctx.fillRect(0, 0, w, h);
+
+        for (const p of particles) {
+          p.x += p.vx;
+          p.y += p.vy;
+          p.vx *= .985;
+          p.vy *= .985;
+          p.life -= .008;
+
+          if (p.life > 0) {
+            ctx.globalAlpha = p.life;
+            ctx.fillStyle = Math.random() > .3
+              ? "#ff1738" : "#ff9aa8";
+            ctx.fillRect(p.x, p.y, p.size, p.size);
+          }
+        }
+
+        ctx.globalAlpha = 1;
+        particles = particles.filter(p => p.life > 0);
+        requestAnimationFrame(animate);
+      }
+      animate();
+
+      let n = 3;
+      const timer = setInterval(() => {
+        n--;
+
+        if (n > 0) {
+          countdown.textContent = n;
+          countdown.animate([
+            { transform: "scale(2)", opacity: 0 },
+            { transform: "scale(1)", opacity: 1 }
+          ], { duration: 450 });
+        } else {
+          clearInterval(timer);
+          countdown.textContent = "";
+          burst();
+
+          setTimeout(() => {
+            countdown.style.display = "none";
+            showLoveWord(0);
+          }, 1000);
+        }
+      }, 1000);
+
+      function showLoveWord(index) {
+        const sequence = ["YOU", "ARE", "MY LOVE"];
+
+        if (index >= sequence.length) {
+          words.innerHTML = "";
+          words.textContent = "♥";
+          words.style.fontSize = "90px";
+
+          setTimeout(() => {
+            words.style.fontSize = "20px";
+            words.textContent = "OUR STORY IS JUST BEGINNING";
+            words.style.letterSpacing = "3px";
+
+            setTimeout(() => {
+              words.textContent = "";
+              const note = document.createElement("div");
+              note.style.cssText =
+                "color:#ff6b80;font-size:16px;text-align:center;" +
+                "direction:rtl;padding:20px;line-height:2;";
+              note.textContent =
+                "استعدي يا ندي.. لسه أحلى حكاية في عمرنا ♥";
+              words.appendChild(note);
+
+              const next = document.createElement("button");
+              next.textContent = "كمّلي يا نور عيني ♥";
+              next.style.cssText =
+                "margin-top:25px;padding:14px 28px;" +
+                "border:1px solid #ff2948;border-radius:30px;" +
+                "background:#39000c;color:white;font-size:16px;";
+              next.onclick = () => {
+                words.innerHTML = "";
+                words.textContent =
+                  "الواجهة التالية هنضيفها في الخطوة الجاية ♥";
+              };
+              words.appendChild(next);
+            }, 1800);
+          }, 1000);
+          return;
+        }
+
+        words.textContent = sequence[index];
+        words.animate([
+          { opacity: 0, transform: "scale(.2) rotate(-8deg)",
+            filter: "blur(12px)" },
+          { opacity: 1, transform: "scale(1.15) rotate(0deg)",
+            filter: "blur(0)" },
+          { opacity: 1, transform: "scale(1)",
+            filter: "blur(0)" }
+        ], { duration: 1100, easing: "ease-out" });
+
+        setTimeout(() => {
+          words.animate([
+            { opacity: 1, transform: "scale(1)" },
+            { opacity: 0, transform: "scale(2)",
+              filter: "blur(12px)" }
+          ], { duration: 450, fill: "forwards" });
+
+          setTimeout(() => showLoveWord(index + 1), 500);
+        }, 1400);
+      }
+    }
   </script>
 </body>
 </html>
